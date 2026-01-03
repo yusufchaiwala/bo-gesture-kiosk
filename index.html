@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Code as Creative Tool – Exhibition Kiosk</title>
-
+  <title>GLB Isolation Test</title>
   <style>
     html, body {
       margin: 0;
@@ -11,22 +10,10 @@
       background: black;
       overflow: hidden;
     }
-
     canvas {
       width: 100vw;
       height: 100vh;
       display: block;
-    }
-
-    #label {
-      position: fixed;
-      bottom: 40px;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-family: sans-serif;
-      letter-spacing: 2px;
-      opacity: 0.8;
     }
   </style>
 </head>
@@ -34,98 +21,71 @@
 <body>
 
 <canvas id="c"></canvas>
-<div id="label">IDLE</div>
 
 <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
-  console.log("SCRIPT RUNNING");
-
-  /* ===============================
-     STATE SYSTEM
-  =============================== */
-  const STATES = ["IDLE", "EXPLORE", "INSIDE"];
-  let currentState = 0;
-  const label = document.getElementById("label");
-
-  window.addEventListener("keydown", () => {
-    currentState = (currentState + 1) % STATES.length;
-    label.innerText = STATES[currentState];
-  });
-
-  /* ===============================
-     THREE SETUP
-  =============================== */
+  // Scene
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
 
-  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  // Camera
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  );
   camera.position.set(0, 0, 6);
 
+  // Renderer
   const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById("c"),
     antialias: true
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
 
-  /* ===============================
-     LIGHTING (STRONG)
-  =============================== */
-  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+  // Lighting (simple + strong)
+  scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
-  const strongLight = new THREE.DirectionalLight(0xffffff, 3);
-  strongLight.position.set(5, 10, 7);
-  scene.add(strongLight);
+  const light = new THREE.DirectionalLight(0xffffff, 2);
+  light.position.set(5, 10, 7);
+  scene.add(light);
 
-  /* ===============================
-     VISUAL HELPERS (TEMP)
-  =============================== */
-  scene.add(new THREE.GridHelper(10, 10));
-
-  /* ===============================
-     FALLBACK CUBE (GUARANTEED VISIBLE)
-  =============================== */
-  const fallbackGeo = new THREE.BoxGeometry(1, 1, 1);
-  const fallbackMat = new THREE.MeshNormalMaterial();
-  const fallbackCube = new THREE.Mesh(fallbackGeo, fallbackMat);
-  fallbackCube.visible = true;
-  scene.add(fallbackCube);
-
-  let object = null;
-
-  /* ===============================
-     LOAD GLB
-  =============================== */
+  // Load GLB
   const loader = new THREE.GLTFLoader();
   loader.load(
     "assets/models/speaker.glb",
-    function (gltf) {
-      console.log("GLB LOADED");
+    (gltf) => {
+      const model = gltf.scene;
 
-      object = gltf.scene;
-
-      object.traverse((child) => {
-        if (child.isMesh) {
-          child.material = new THREE.MeshNormalMaterial();
-        }
-      });
-
-      const box = new THREE.Box3().setFromObject(object);
-      const size = box.getSize(new THREE.Vector3()).length();
+      // Center model
+      const box = new THREE.Box3().setFromObject(model);
       const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
 
-      object.position.sub(center);
-      object.scale.setScalar(2 / size);
+      // Scale model to fit view
+      const size = box.getSize(new THREE.Vector3()).length();
+      const scale = 2.5 / size;
+      model.scale.setScalar(scale);
 
-      fallbackCube.visible = false;
-      scene.add(object);
+      scene.add(model);
     },
     undefined,
-    function (error) {
-      console.error("GLB ERROR:", error);
+    (err) => {
+      console.error("GLB failed:", err);
     }
   );
 
-  /* ===============================
+  // Render loop (no animation)
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+</script>
+
+</body>
+</html>
