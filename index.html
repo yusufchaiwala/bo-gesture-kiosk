@@ -2,57 +2,20 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Exhibition Kiosk – Code as Creative Tool</title>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
-
-    #screen {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 48px;
-      transition: background 0.6s ease;
-    }
-  </style>
+  <title>Test</title>
 </head>
 
-<body>
+<body style="margin:0; background:black;">
 
-  <div id="screen">IDLE</div>
-
-  <script>
-    // STATES
-    const STATES = ["IDLE", "EXPLORE", "INSIDE"];
-    let currentState = 0;
-
-    const screen = document.getElementById("screen");
-
-    function updateState() {
-      screen.innerText = STATES[currentState];
-
-      if (currentState === 0) screen.style.background = "#000000";
-      if (currentState === 1) screen.style.background = "#1a1a1a";
-      if (currentState === 2) screen.style.background = "#003333";
-    }
-
-    // INPUT (keyboard = gesture prototype)
-    window.addEventListener("keydown", () => {
-      currentState = (currentState + 1) % STATES.length;
-      updateState();
-    });
-
-    updateState();
-  </script>
+  <div style="
+    color: white;
+    font-size: 48px;
+    text-align: center;
+    margin-top: 40vh;
+    font-family: sans-serif;
+  ">
+    PAGE IS LOADING
+  </div>
 
 </body>
 </html>
