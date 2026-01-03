@@ -36,25 +36,37 @@
 <canvas id="c"></canvas>
 <div id="label">IDLE</div>
 
+<!-- Three.js -->
 <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
-  // -----------------------------
-  // STATE SYSTEM (CORE IDEA)
-  // -----------------------------
+  /* -----------------------------
+     STATE SYSTEM
+  ----------------------------- */
   const STATES = ["IDLE", "EXPLORE", "INSIDE"];
   let currentState = 0;
 
   const label = document.getElementById("label");
 
-  // -----------------------------
-  // THREE.JS SETUP
-  // -----------------------------
+  window.addEventListener("keydown", () => {
+    currentState = (currentState + 1) % STATES.length;
+    label.innerText = STATES[currentState];
+  });
+
+  /* -----------------------------
+     THREE.JS SETUP
+  ----------------------------- */
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
 
-  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.z = 4;
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  );
+  camera.position.set(0, 0, 4);
 
   const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById("c"),
@@ -62,56 +74,66 @@
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  // Geometry (Abstract product form)
-  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const object = new THREE.Mesh(geometry, material);
-  scene.add(object);
+  /* -----------------------------
+     LIGHTING
+  ----------------------------- */
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1);
+  keyLight.position.set(3, 3, 5);
+  scene.add(keyLight);
 
-  // Lighting
-  const light1 = new THREE.DirectionalLight(0xffffff, 1);
-  light1.position.set(3, 3, 5);
-  scene.add(light1);
+  const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  fillLight.position.set(-3, -2, 4);
+  scene.add(fillLight);
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambient);
 
-  // -----------------------------
-  // INPUT (KEYBOARD = GESTURE PROXY)
-  // -----------------------------
-  window.addEventListener("keydown", () => {
-    currentState = (currentState + 1) % STATES.length;
-    label.innerText = STATES[currentState];
-  });
+  /* -----------------------------
+     LOAD GLB MODEL
+  ----------------------------- */
+  let object = null;
 
-  // -----------------------------
-  // ANIMATION / BEHAVIOR
-  // -----------------------------
+  const loader = new THREE.GLTFLoader();
+  loader.load(
+    "assets/models/speaker.glb",
+    function (gltf) {
+      object = gltf.scene;
+      object.scale.set(1, 1, 1);
+      scene.add(object);
+    },
+    undefined,
+    function (error) {
+      console.error("GLB load error:", error);
+    }
+  );
+
+  /* -----------------------------
+     ANIMATION LOOP
+  ----------------------------- */
   let time = 0;
 
   function animate() {
     requestAnimationFrame(animate);
     time += 0.01;
 
-    // IDLE — calm presence
+    if (!object) {
+      renderer.render(scene, camera);
+      return;
+    }
+
     if (STATES[currentState] === "IDLE") {
       object.rotation.y += 0.003;
       object.scale.set(1, 1, 1);
-      object.material.color.set(0xffffff);
     }
 
-    // EXPLORE — responsive manipulation
     if (STATES[currentState] === "EXPLORE") {
       object.rotation.y += 0.01;
       object.rotation.x = Math.sin(time) * 0.2;
-      object.material.color.set(0xdddddd);
     }
 
-    // INSIDE — intensified focus
     if (STATES[currentState] === "INSIDE") {
       const pulse = 1 + Math.sin(time * 2) * 0.15;
       object.scale.set(pulse, pulse, pulse);
-      object.material.color.set(0x88ffff);
     }
 
     renderer.render(scene, camera);
@@ -119,7 +141,9 @@
 
   animate();
 
-  // Resize handling
+  /* -----------------------------
+     RESIZE HANDLING
+  ----------------------------- */
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
