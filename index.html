@@ -2,72 +2,130 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Code as Creative Tool</title>
+  <title>Code as a Creative Tool – Exhibition Kiosk</title>
 
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      font-family: sans-serif;
       overflow: hidden;
     }
 
-    #screen {
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #label {
+      position: fixed;
+      bottom: 40px;
+      width: 100%;
+      text-align: center;
       color: white;
-      font-size: 48px;
-      position: relative;
+      font-family: sans-serif;
+      letter-spacing: 2px;
+      opacity: 0.7;
     }
   </style>
 </head>
 
 <body>
 
-  <div id="screen">IDLE</div>
+<canvas id="c"></canvas>
+<div id="label">IDLE</div>
 
-  <script>
-    const states = ["IDLE", "EXPLORE", "INSIDE"];
-    let current = 0;
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
 
-    const screen = document.getElementById("screen");
-    let time = 0;
+<script>
+  // -----------------------------
+  // STATE SYSTEM (CORE IDEA)
+  // -----------------------------
+  const STATES = ["IDLE", "EXPLORE", "INSIDE"];
+  let currentState = 0;
 
-    function updateText() {
-      screen.innerText = states[current];
+  const label = document.getElementById("label");
+
+  // -----------------------------
+  // THREE.JS SETUP
+  // -----------------------------
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.z = 4;
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById("c"),
+    antialias: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  // Geometry (Abstract product form)
+  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const object = new THREE.Mesh(geometry, material);
+  scene.add(object);
+
+  // Lighting
+  const light1 = new THREE.DirectionalLight(0xffffff, 1);
+  light1.position.set(3, 3, 5);
+  scene.add(light1);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambient);
+
+  // -----------------------------
+  // INPUT (KEYBOARD = GESTURE PROXY)
+  // -----------------------------
+  window.addEventListener("keydown", () => {
+    currentState = (currentState + 1) % STATES.length;
+    label.innerText = STATES[currentState];
+  });
+
+  // -----------------------------
+  // ANIMATION / BEHAVIOR
+  // -----------------------------
+  let time = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.01;
+
+    // IDLE — calm presence
+    if (STATES[currentState] === "IDLE") {
+      object.rotation.y += 0.003;
+      object.scale.set(1, 1, 1);
+      object.material.color.set(0xffffff);
     }
 
-    window.addEventListener("keydown", () => {
-      current = (current + 1) % states.length;
-      updateText();
-    });
-
-    function animate() {
-      time += 0.02;
-
-      if (states[current] === "IDLE") {
-        screen.style.transform = "translateX(0px) scale(1)";
-      }
-
-      if (states[current] === "EXPLORE") {
-        const x = Math.sin(time) * 40;
-        screen.style.transform = `translateX(${x}px) scale(1)`;
-      }
-
-      if (states[current] === "INSIDE") {
-        const s = 1 + Math.sin(time * 2) * 0.2;
-        screen.style.transform = `scale(${s})`;
-      }
-
-      requestAnimationFrame(animate);
+    // EXPLORE — responsive manipulation
+    if (STATES[currentState] === "EXPLORE") {
+      object.rotation.y += 0.01;
+      object.rotation.x = Math.sin(time) * 0.2;
+      object.material.color.set(0xdddddd);
     }
 
-    updateText();
-    animate();
-  </script>
+    // INSIDE — intensified focus
+    if (STATES[currentState] === "INSIDE") {
+      const pulse = 1 + Math.sin(time * 2) * 0.15;
+      object.scale.set(pulse, pulse, pulse);
+      object.material.color.set(0x88ffff);
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // Resize handling
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
 
 </body>
 </html>
-
