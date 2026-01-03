@@ -2,20 +2,34 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Test</title>
+  <title>Code as Creative Tool</title>
 </head>
 
-<body style="margin:0; background:black;">
+<body style="
+  margin:0;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  font-family:sans-serif;
+">
 
-  <div style="
-    color: white;
-    font-size: 48px;
-    text-align: center;
-    margin-top: 40vh;
-    font-family: sans-serif;
-  ">
-    PAGE IS LOADING
+  <div id="screen" style="color:white; font-size:48px;">
+    IDLE
   </div>
+
+  <script>
+    const states = ["IDLE", "EXPLORE", "INSIDE"];
+    let current = 0;
+
+    const screen = document.getElementById("screen");
+
+    window.addEventListener("keydown", () => {
+      current = (current + 1) % states.length;
+      screen.innerText = states[current];
+    });
+  </script>
 
 </body>
 </html>
