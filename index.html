@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Exhibition Kiosk</title>
+  <title>Exhibition Kiosk – Code as Creative Tool</title>
 
   <style>
     html, body {
@@ -10,124 +10,48 @@
       padding: 0;
       background: black;
       overflow: hidden;
-      width: 100%;
-      height: 100%;
+      font-family: sans-serif;
     }
 
-    canvas {
+    #screen {
       width: 100vw;
       height: 100vh;
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 48px;
+      transition: background 0.6s ease;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Fullscreen Canvas -->
-  <canvas id="scene"></canvas>
-
-  <!-- Three.js core -->
-  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
-
-  <!-- GLTF Loader -->
-  <script src="https://unpkg.com/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
+  <div id="screen">IDLE</div>
 
   <script>
-    // -----------------------------
-    // BASIC THREE.JS SETUP
-    // -----------------------------
+    // STATES
+    const STATES = ["IDLE", "EXPLORE", "INSIDE"];
+    let currentState = 0;
 
-    // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    const screen = document.getElementById("screen");
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 3);
+    function updateState() {
+      screen.innerText = STATES[currentState];
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas: document.getElementById("scene"),
-      antialias: true
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    // -----------------------------
-    // LIGHTING (VERY IMPORTANT)
-    // -----------------------------
-
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1);
-    keyLight.position.set(2, 2, 5);
-    scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    fillLight.position.set(-2, -1, 3);
-    scene.add(fillLight);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
-
-    // -----------------------------
-    // LOAD 3D MODEL
-    // -----------------------------
-
-    let model = null;
-
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-      "assets/models/speaker.glb",
-      function (gltf) {
-        model = gltf.scene;
-
-        // Center the model
-        model.position.set(0, 0, 0);
-
-        // Adjust scale if needed
-        model.scale.set(1, 1, 1);
-
-        scene.add(model);
-      },
-      function (xhr) {
-        // Optional: loading progress
-        console.log((xhr.loaded / xhr.total * 100) + "% loaded");
-      },
-      function (error) {
-        console.error("ERROR loading model:", error);
-      }
-    );
-
-    // -----------------------------
-    // ANIMATION LOOP
-    // -----------------------------
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (model) {
-        model.rotation.y += 0.002;
-      }
-
-      renderer.render(scene, camera);
+      if (currentState === 0) screen.style.background = "#000000";
+      if (currentState === 1) screen.style.background = "#1a1a1a";
+      if (currentState === 2) screen.style.background = "#003333";
     }
 
-    animate();
-
-    // -----------------------------
-    // HANDLE RESIZE
-    // -----------------------------
-
-    window.addEventListener("resize", function () {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    // INPUT (keyboard = gesture prototype)
+    window.addEventListener("keydown", () => {
+      currentState = (currentState + 1) % STATES.length;
+      updateState();
     });
+
+    updateState();
   </script>
 
 </body>
