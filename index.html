@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Code as a Creative Tool – Exhibition Kiosk</title>
+  <title>Code as Creative Tool – Exhibition Kiosk</title>
 
   <style>
     html, body {
@@ -26,119 +26,106 @@
       color: white;
       font-family: sans-serif;
       letter-spacing: 2px;
-      opacity: 0.7;
+      opacity: 0.8;
     }
   </style>
 </head>
 
 <body>
 
-  <canvas id="c"></canvas>
-  <div id="label">IDLE</div>
+<canvas id="c"></canvas>
+<div id="label">IDLE</div>
 
-  <!-- Three.js -->
-  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
-  <script src="https://unpkg.com/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
 
-  <script>
-    /* ===============================
-       STATE SYSTEM
-    =============================== */
-    const STATES = ["IDLE", "EXPLORE", "INSIDE"];
-    let currentState = 0;
+<script>
+  console.log("SCRIPT RUNNING");
 
-    const label = document.getElementById("label");
+  /* ===============================
+     STATE SYSTEM
+  =============================== */
+  const STATES = ["IDLE", "EXPLORE", "INSIDE"];
+  let currentState = 0;
+  const label = document.getElementById("label");
 
-    window.addEventListener("keydown", () => {
-      currentState = (currentState + 1) % STATES.length;
-      label.innerText = STATES[currentState];
-    });
+  window.addEventListener("keydown", () => {
+    currentState = (currentState + 1) % STATES.length;
+    label.innerText = STATES[currentState];
+  });
 
-    /* ===============================
-       THREE.JS SETUP
-    =============================== */
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+  /* ===============================
+     THREE SETUP
+  =============================== */
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 5);
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 6);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas: document.getElementById("c"),
-      antialias: true
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById("c"),
+    antialias: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
 
-    /* ===============================
-       LIGHTING (IMPORTANT)
-    =============================== */
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1);
-    keyLight.position.set(4, 4, 6);
-    scene.add(keyLight);
+  /* ===============================
+     LIGHTING (STRONG)
+  =============================== */
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    fillLight.position.set(-4, -2, 5);
-    scene.add(fillLight);
+  const strongLight = new THREE.DirectionalLight(0xffffff, 3);
+  strongLight.position.set(5, 10, 7);
+  scene.add(strongLight);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambient);
+  /* ===============================
+     VISUAL HELPERS (TEMP)
+  =============================== */
+  scene.add(new THREE.GridHelper(10, 10));
 
-    /* ===============================
-       LOAD GLB MODEL
-    =============================== */
-    let object = null;
+  /* ===============================
+     FALLBACK CUBE (GUARANTEED VISIBLE)
+  =============================== */
+  const fallbackGeo = new THREE.BoxGeometry(1, 1, 1);
+  const fallbackMat = new THREE.MeshNormalMaterial();
+  const fallbackCube = new THREE.Mesh(fallbackGeo, fallbackMat);
+  fallbackCube.visible = true;
+  scene.add(fallbackCube);
 
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-      "assets/models/speaker.glb",
-      function (gltf) {
-        object = gltf.scene;
+  let object = null;
 
-        // --- AUTO CENTER MODEL ---
-        const box = new THREE.Box3().setFromObject(object);
-        const size = box.getSize(new THREE.Vector3()).length();
-        const center = box.getCenter(new THREE.Vector3());
+  /* ===============================
+     LOAD GLB
+  =============================== */
+  const loader = new THREE.GLTFLoader();
+  loader.load(
+    "assets/models/speaker.glb",
+    function (gltf) {
+      console.log("GLB LOADED");
 
-        object.position.sub(center);
+      object = gltf.scene;
 
-        // --- AUTO SCALE MODEL ---
-        const scaleFactor = 2 / size;
-        object.scale.setScalar(scaleFactor);
-
-        scene.add(object);
-      },
-      undefined,
-      function (error) {
-        console.error("GLB load error:", error);
-      }
-    );
-
-    /* ===============================
-       ANIMATION LOOP
-    =============================== */
-    let time = 0;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      time += 0.01;
-
-      if (object) {
-        if (STATES[currentState] === "IDLE") {
-          object.rotation.y += 0.003;
-          object.scale.setScalar(2 / new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3()).length());
+      object.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshNormalMaterial();
         }
+      });
 
-        if (STATES[currentState] === "EXPLORE") {
-          object.rotation.y += 0.01;
-          object.rotation.x = Math.sin(time) * 0.2;
-        }
+      const box = new THREE.Box3().setFromObject(object);
+      const size = box.getSize(new THREE.Vector3()).length();
+      const center = box.getCenter(new THREE.Vector3());
 
-        if (STATES[currentState] === "INSIDE") {
-          const pulse = 1 + Math.sin(time * 2) * 0.15;
-          object.scale.setScalar(pu
+      object.position.sub(center);
+      object.scale.setScalar(2 / size);
+
+      fallbackCube.visible = false;
+      scene.add(object);
+    },
+    undefined,
+    function (error) {
+      console.error("GLB ERROR:", error);
+    }
+  );
+
+  /* ===============================
