@@ -3,33 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <title>Code as Creative Tool</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    #screen {
+      color: white;
+      font-size: 48px;
+      position: relative;
+    }
+  </style>
 </head>
 
-<body style="
-  margin:0;
-  background:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-  font-family:sans-serif;
-">
+<body>
 
-  <div id="screen" style="color:white; font-size:48px;">
-    IDLE
-  </div>
+  <div id="screen">IDLE</div>
 
   <script>
     const states = ["IDLE", "EXPLORE", "INSIDE"];
     let current = 0;
 
     const screen = document.getElementById("screen");
+    let time = 0;
+
+    function updateText() {
+      screen.innerText = states[current];
+    }
 
     window.addEventListener("keydown", () => {
       current = (current + 1) % states.length;
-      screen.innerText = states[current];
+      updateText();
     });
+
+    function animate() {
+      time += 0.02;
+
+      if (states[current] === "IDLE") {
+        screen.style.transform = "translateX(0px) scale(1)";
+      }
+
+      if (states[current] === "EXPLORE") {
+        const x = Math.sin(time) * 40;
+        screen.style.transform = `translateX(${x}px) scale(1)`;
+      }
+
+      if (states[current] === "INSIDE") {
+        const s = 1 + Math.sin(time * 2) * 0.2;
+        screen.style.transform = `scale(${s})`;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    updateText();
+    animate();
   </script>
 
 </body>
 </html>
+
