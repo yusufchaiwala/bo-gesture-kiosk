@@ -1,85 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GLB Viewer – Final</title>
+  <title>Exhibition Product Kiosk</title>
+
+  <!-- MODEL VIEWER -->
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      background: black;
-      overflow: hidden;
-    }
-    canvas {
-      width: 100vw;
+      background: #0a0a0a;
+      color: white;
+      font-family: sans-serif;
+      display: grid;
+      grid-template-columns: 260px 1fr;
       height: 100vh;
-      display: block;
+    }
+
+    aside {
+      background: #111;
+      padding: 24px;
+      border-right: 1px solid #222;
+    }
+
+    aside h2 {
+      margin-top: 0;
+      letter-spacing: 1px;
+    }
+
+    .item {
+      margin: 16px 0;
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+    .item.active {
+      opacity: 1;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    model-viewer {
+      flex: 1;
+      background: black;
+    }
+
+    footer {
+      padding: 16px 24px;
+      border-top: 1px solid #222;
+      font-size: 14px;
+      opacity: 0.7;
     }
   </style>
 </head>
 
 <body>
 
-<canvas id="c"></canvas>
+  <!-- SIDEBAR -->
+  <aside>
+    <h2>BANG & OLUFSEN</h2>
+    <div class="item active">Beosound Speaker</div>
+    <div class="item">Coming Soon</div>
+    <div class="item">Coming Soon</div>
+  </aside>
 
-<script type="module">
-  console.log("MODULE RUNNING");
+  <!-- MAIN VIEW -->
+  <main>
+    <model-viewer
+      src="assets/models/speaker.glb"
+      camera-controls
+      auto-rotate
+      rotation-per-second="20deg"
+      exposure="1.2"
+      shadow-intensity="1"
+      ar
+      alt="Beosound Speaker">
+    </model-viewer>
 
-  // IMPORT BOTH FROM SAME SOURCE
-  import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
-  import { GLTFLoader } from "https://unpkg.com/three@0.158.0/examples/jsm/loaders/GLTFLoader.js";
-
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
-
-  const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-  );
-  camera.position.z = 6;
-
-  const renderer = new THREE.WebGLRenderer({
-    canvas: document.getElementById("c"),
-    antialias: true
-  });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  // LIGHTING
-  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-  const light = new THREE.DirectionalLight(0xffffff, 2);
-  light.position.set(5, 10, 7);
-  scene.add(light);
-
-  // LOAD MODEL
-  const loader = new GLTFLoader();
-  loader.load(
-    "assets/models/speaker.glb",
-    (gltf) => {
-      console.log("GLB LOADED");
-
-      const model = gltf.scene;
-
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3()).length();
-
-      model.position.sub(center);
-      model.scale.setScalar(2.5 / size);
-
-      scene.add(model);
-    },
-    undefined,
-    (err) => console.error("GLB ERROR", err)
-  );
-
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-  }
-  animate();
-</script>
+    <footer>
+      Rotate: Mouse / Touch · Zoom: Scroll · Gesture-ready kiosk prototype
+    </footer>
+  </main>
 
 </body>
 </html>
