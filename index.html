@@ -51,6 +51,7 @@
     main {
       position: relative;
       background: #0c0c0c;
+      overflow: hidden;
     }
 
     model-viewer {
@@ -128,7 +129,7 @@
       z-index: 10;
     }
 
-    /* ---------- SUBTLE INTERACTION HINT ---------- */
+    /* ---------- SUBTLE HINT ---------- */
     .hint {
       position: absolute;
       bottom: 24px;
@@ -159,7 +160,7 @@
   </nav>
 
   <!-- MAIN -->
-  <main>
+  <main id="mainStage">
 
     <model-viewer
       id="viewer"
@@ -202,14 +203,16 @@
   </main>
 
 <script>
-  /* ---------- SIDEBAR ---------- */
+  /* ---------- REFERENCES ---------- */
   const viewer = document.getElementById("viewer");
+  const mainStage = document.getElementById("mainStage");
   const comingSoon = document.getElementById("comingSoon");
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
   const navItems = document.querySelectorAll(".nav-item");
   const hint = document.getElementById("hint");
 
+  /* ---------- SIDEBAR ---------- */
   function clearActive() {
     navItems.forEach(i => i.classList.remove("active"));
   }
@@ -249,15 +252,18 @@
     }
   });
 
-  /* ---------- MOUSE = GESTURE PROXY ---------- */
+  /* ---------- MOUSE = GESTURE PROXY (ZONED) ---------- */
   let yaw = 0;
   let pitch = 75;
   let zoom = 4.8;
   let interacted = false;
 
-  window.addEventListener("pointermove", (e) => {
-    const x = e.clientX / window.innerWidth;
-    const y = e.clientY / window.innerHeight;
+  mainStage.addEventListener("pointermove", (e) => {
+    const rect = mainStage.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    if (x < 0 || x > 1 || y < 0 || y > 1) return;
 
     yaw = (x - 0.5) * 180;
     pitch = 60 + (0.5 - y) * 30;
@@ -273,7 +279,7 @@
     }
   });
 
-  window.addEventListener("wheel", (e) => {
+  mainStage.addEventListener("wheel", (e) => {
     zoom += e.deltaY * 0.001;
     zoom = Math.min(6, Math.max(3, zoom));
 
