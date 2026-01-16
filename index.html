@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Exhibition Product Kiosk</title>
+  <title>B&O Interactive Exhibition Kiosk</title>
 
   <!-- MODEL VIEWER -->
   <script type="module"
@@ -12,50 +12,59 @@
   <style>
     body {
       margin: 0;
-      background: #0a0a0a;
-      color: white;
-      font-family: sans-serif;
-      display: grid;
-      grid-template-columns: 260px 1fr;
       height: 100vh;
+      background: #0e0e0e;
+      color: #eaeaea;
+      font-family: Helvetica, Arial, sans-serif;
+      display: grid;
+      grid-template-columns: 280px 1fr;
     }
 
-    aside {
-      background: #111;
-      padding: 24px;
+    nav {
+      padding: 32px 24px;
       border-right: 1px solid #222;
     }
 
-    aside h2 {
-      margin-top: 0;
-      letter-spacing: 1px;
+    nav h1 {
+      font-size: 18px;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
     }
 
-    .item {
-      margin: 16px 0;
-      opacity: 0.6;
+    .product {
+      margin-bottom: 20px;
+      opacity: 0.5;
       cursor: pointer;
     }
 
-    .item.active {
+    .product.active {
       opacity: 1;
     }
 
     main {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: 1fr 140px;
     }
 
     model-viewer {
-      flex: 1;
-      background: black;
+      background: #000;
     }
 
-    footer {
-      padding: 16px 24px;
+    .details {
+      padding: 24px 32px;
       border-top: 1px solid #222;
       font-size: 14px;
-      opacity: 0.7;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+
+    .state {
+      position: fixed;
+      top: 24px;
+      right: 32px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: 0.6;
     }
   </style>
 </head>
@@ -63,30 +72,64 @@
 <body>
 
   <!-- SIDEBAR -->
-  <aside>
-    <h2>BANG & OLUFSEN</h2>
-    <div class="item active">Beosound Speaker</div>
-    <div class="item">Coming Soon</div>
-    <div class="item">Coming Soon</div>
-  </aside>
+  <nav>
+    <h1>BANG & OLUFSEN</h1>
+    <div class="product active">Beosound Speaker</div>
+    <div class="product">Coming Soon</div>
+    <div class="product">Coming Soon</div>
+  </nav>
 
-  <!-- MAIN VIEW -->
+  <!-- MAIN -->
   <main>
     <model-viewer
+      id="viewer"
       src="assets/models/speaker.glb"
       camera-controls
       auto-rotate
-      rotation-per-second="20deg"
+      rotation-per-second="15deg"
       exposure="1.2"
-      shadow-intensity="1"
-      ar
-      alt="Beosound Speaker">
+      shadow-intensity="1">
     </model-viewer>
 
-    <footer>
-      Rotate: Mouse / Touch · Zoom: Scroll · Gesture-ready kiosk prototype
-    </footer>
+    <div class="details" id="details">
+      Sculpted aluminium form designed for intimate listening.<br>
+      Gesture-enabled kiosk prototype for exhibition interaction.
+    </div>
   </main>
+
+  <div class="state" id="state">ATTRACT</div>
+
+<script>
+  const states = ["ATTRACT", "EXPLORE", "FOCUS"];
+  let current = 0;
+
+  const stateLabel = document.getElementById("state");
+  const viewer = document.getElementById("viewer");
+  const details = document.getElementById("details");
+
+  window.addEventListener("keydown", () => {
+    current = (current + 1) % states.length;
+    stateLabel.innerText = states[current];
+
+    if (states[current] === "ATTRACT") {
+      viewer.autoRotate = true;
+      viewer.cameraControls = false;
+      details.style.opacity = 0.4;
+    }
+
+    if (states[current] === "EXPLORE") {
+      viewer.autoRotate = false;
+      viewer.cameraControls = true;
+      details.style.opacity = 0.7;
+    }
+
+    if (states[current] === "FOCUS") {
+      viewer.autoRotate = false;
+      viewer.cameraControls = true;
+      details.style.opacity = 1;
+    }
+  });
+</script>
 
 </body>
 </html>
