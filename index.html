@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <title>B&O Interactive Exhibition Kiosk</title>
 
-  <!-- MODEL VIEWER -->
+  <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       height: 100vh;
@@ -18,49 +22,66 @@
       font-family: Helvetica, Arial, sans-serif;
       display: grid;
       grid-template-columns: 280px 1fr;
+      overflow: hidden;
     }
 
+    /* ---------- SIDEBAR ---------- */
     nav {
       padding: 32px 24px;
-      border-right: 1px solid #222;
+      border-right: 1px solid #1f1f1f;
+      display: flex;
+      flex-direction: column;
     }
 
-    nav h1 {
-      font-size: 18px;
-      letter-spacing: 2px;
-      margin-bottom: 40px;
+    .logo {
+      width: 150px;
+      margin-bottom: 48px;
+      opacity: 0.95;
     }
 
     .product {
       margin-bottom: 20px;
-      opacity: 0.5;
-      cursor: pointer;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      opacity: 0.45;
+      cursor: default;
     }
 
     .product.active {
       opacity: 1;
     }
 
+    /* ---------- MAIN VIEW ---------- */
     main {
-      display: grid;
-      grid-template-rows: 1fr 140px;
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
     }
 
     model-viewer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       background: #000;
     }
 
+    /* ---------- DETAILS ---------- */
     .details {
-      padding: 24px 32px;
-      border-top: 1px solid #222;
+      position: absolute;
+      bottom: 32px;
+      left: 32px;
+      max-width: 360px;
       font-size: 14px;
       line-height: 1.6;
-      opacity: 0.8;
+      opacity: 0.65;
+      pointer-events: none;
     }
 
+    /* ---------- STATE LABEL ---------- */
     .state {
-      position: fixed;
-      top: 24px;
+      position: absolute;
+      top: 32px;
       right: 32px;
       font-size: 12px;
       letter-spacing: 2px;
@@ -73,46 +94,50 @@
 
   <!-- SIDEBAR -->
   <nav>
-    <h1>BANG & OLUFSEN</h1>
+    <img src="assets/b&o.png" alt="Bang & Olufsen" class="logo">
+
     <div class="product active">Beosound Speaker</div>
     <div class="product">Coming Soon</div>
     <div class="product">Coming Soon</div>
   </nav>
 
-  <!-- MAIN -->
+  <!-- MAIN KIOSK VIEW -->
   <main>
+
     <model-viewer
-  id="viewer"
-  src="assets/models/speaker.glb"
-  camera-controls
-  auto-rotate
-  rotation-per-second="15deg"
-  exposure="1.2"
-  shadow-intensity="1"
+      id="viewer"
+      src="assets/models/speaker.glb"
 
-  camera-orbit="0deg 75deg 2.2m"
-  min-camera-orbit="auto auto 0.1m"
-  max-camera-orbit="auto auto 3.5m"
+      auto-rotate
+      rotation-per-second="8deg"
 
-  field-of-view="25deg">
-</model-viewer>
+      camera-controls
+      disable-zoom
+      interaction-prompt="none"
 
+      exposure="1.2"
+      shadow-intensity="1"
+      environment-image="neutral"
+
+      scale="4.5 4.5 4.5">
+    </model-viewer>
 
     <div class="details" id="details">
       Sculpted aluminium form designed for intimate listening.<br>
-      Gesture-enabled kiosk prototype for exhibition interaction.
+      Gesture-enabled exhibition kiosk exploring form, presence, and interaction.
     </div>
-  </main>
 
-  <div class="state" id="state">ATTRACT</div>
+    <div class="state" id="state">ATTRACT</div>
+
+  </main>
 
 <script>
   const states = ["ATTRACT", "EXPLORE", "FOCUS"];
   let current = 0;
 
-  const stateLabel = document.getElementById("state");
   const viewer = document.getElementById("viewer");
   const details = document.getElementById("details");
+  const stateLabel = document.getElementById("state");
 
   window.addEventListener("keydown", () => {
     current = (current + 1) % states.length;
@@ -127,7 +152,7 @@
     if (states[current] === "EXPLORE") {
       viewer.autoRotate = false;
       viewer.cameraControls = true;
-      details.style.opacity = 0.7;
+      details.style.opacity = 0.6;
     }
 
     if (states[current] === "FOCUS") {
