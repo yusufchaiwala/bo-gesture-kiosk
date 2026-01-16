@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>B&O Exhibition Kiosk</title>
+  <title>B&O Interactive Exhibition Kiosk</title>
 
+  <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
@@ -58,7 +59,7 @@
       background: #0c0c0c;
     }
 
-    /* ---------- OVERLAYS ---------- */
+    /* ---------- OVERLAYS (NON-BLOCKING) ---------- */
     .description,
     .state,
     .hint,
@@ -94,6 +95,17 @@
       color: rgba(255,255,255,0.35);
     }
 
+    .coming-soon {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      letter-spacing: 6px;
+      color: #555;
+    }
+
     /* ---------- CTA ---------- */
     .purchase {
       position: absolute;
@@ -127,6 +139,7 @@
 
 <body>
 
+  <!-- SIDEBAR -->
   <nav>
     <img src="assets/bo-logo.png" class="logo" alt="Bang & Olufsen" />
     <div class="nav-item active">BEOSOUND A9</div>
@@ -135,17 +148,18 @@
     <div class="nav-item">COMING SOON</div>
   </nav>
 
+  <!-- MAIN -->
   <main>
 
-    <!-- TURN-TABLE MODEL -->
+    <!-- THIS DOES ALL THE MAGIC -->
     <model-viewer
-      id="viewer"
       src="assets/models/speaker.glb"
+      camera-controls
       auto-rotate
-      rotation-per-second="2deg"
+      rotation-per-second="3deg"
       camera-orbit="0deg 75deg 4.8m"
-      min-camera-orbit="-Infinity 60deg 3m"
-      max-camera-orbit="Infinity  85deg 6m"
+      min-camera-orbit="-Infinity 55deg 3.5m"
+      max-camera-orbit="Infinity 85deg 6m"
       interaction-prompt="none"
       exposure="1.25"
       environment-image="neutral"
@@ -153,7 +167,8 @@
     </model-viewer>
 
     <div class="description">
-      Sound and shape unite in this iconic, customisable speaker.
+      Sound and shape unite in this iconic, customisable speaker.<br>
+      Seven drivers bring the power. A century of craft brings the form.
     </div>
 
     <div class="purchase">
@@ -173,34 +188,6 @@
     </div>
 
   </main>
-
-<script>
-  const viewer = document.getElementById("viewer");
-
-  let rotationY = 0;
-  let lastX = null;
-
-  viewer.addEventListener("pointerdown", e => {
-    lastX = e.clientX;
-    viewer.autoRotate = false;
-  });
-
-  viewer.addEventListener("pointermove", e => {
-    if (lastX === null) return;
-    const dx = e.clientX - lastX;
-    rotationY += dx * 0.25;
-    viewer.orientation = `0deg ${rotationY}deg 0deg`;
-    lastX = e.clientX;
-  });
-
-  viewer.addEventListener("pointerup", () => {
-    lastX = null;
-  });
-
-  viewer.addEventListener("pointerleave", () => {
-    lastX = null;
-  });
-</script>
 
 </body>
 </html>
