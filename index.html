@@ -17,45 +17,42 @@
     body {
       margin: 0;
       height: 100vh;
-      background: #0e0e0e;
-      color: #eaeaea;
-      font-family: Helvetica, Arial, sans-serif;
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 300px 1fr;
+      font-family: Helvetica, Arial, sans-serif;
+      background: #111;
       overflow: hidden;
     }
 
-    /* ---------- SIDEBAR ---------- */
+    /* ---------- SIDEBAR (B&O STYLE) ---------- */
     nav {
-      padding: 32px 24px;
-      border-right: 1px solid #1f1f1f;
+      background: #f4f4f2; /* B&O neutral */
+      padding: 40px 32px;
       display: flex;
       flex-direction: column;
+      border-right: 1px solid #ddd;
     }
 
     .logo {
-      width: 150px;
-      margin-bottom: 48px;
-      opacity: 0.95;
+      width: 160px;
+      margin-bottom: 56px;
     }
 
     .product {
-      margin-bottom: 20px;
       font-size: 14px;
-      letter-spacing: 0.5px;
-      opacity: 0.45;
-      cursor: default;
+      letter-spacing: 1px;
+      color: #777;
+      margin-bottom: 24px;
     }
 
     .product.active {
-      opacity: 1;
+      color: #000;
     }
 
-    /* ---------- MAIN VIEW ---------- */
+    /* ---------- MAIN STAGE ---------- */
     main {
       position: relative;
-      height: 100vh;
-      overflow: hidden;
+      background: #0c0c0c;
     }
 
     model-viewer {
@@ -63,29 +60,29 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      background: #000;
+      background: #0c0c0c;
     }
 
     /* ---------- DETAILS ---------- */
     .details {
       position: absolute;
-      bottom: 32px;
-      left: 32px;
-      max-width: 360px;
+      bottom: 40px;
+      left: 40px;
+      max-width: 380px;
       font-size: 14px;
-      line-height: 1.6;
-      opacity: 0.65;
+      line-height: 1.7;
+      color: #bcbcbc;
       pointer-events: none;
     }
 
-    /* ---------- STATE LABEL ---------- */
+    /* ---------- STATE ---------- */
     .state {
       position: absolute;
-      top: 32px;
-      right: 32px;
+      top: 40px;
+      right: 40px;
       font-size: 12px;
-      letter-spacing: 2px;
-      opacity: 0.6;
+      letter-spacing: 3px;
+      color: #888;
     }
   </style>
 </head>
@@ -96,12 +93,12 @@
   <nav>
     <img src="assets/bo-logo.png" alt="Bang & Olufsen" class="logo">
 
-    <div class="product active">Beosound Speaker</div>
-    <div class="product">Coming Soon</div>
-    <div class="product">Coming Soon</div>
+    <div class="product active">BEOSOUND SPEAKER</div>
+    <div class="product">COMING SOON</div>
+    <div class="product">COMING SOON</div>
   </nav>
 
-  <!-- MAIN KIOSK VIEW -->
+  <!-- MAIN -->
   <main>
 
     <model-viewer
@@ -109,22 +106,22 @@
       src="assets/models/speaker.glb"
 
       auto-rotate
-      rotation-per-second="8deg"
+      rotation-per-second="7deg"
 
       camera-controls
       disable-zoom
       interaction-prompt="none"
 
-      exposure="1.2"
-      shadow-intensity="1"
+      exposure="1.25"
       environment-image="neutral"
+      shadow-intensity="1"
 
-      scale="4.5 4.5 4.5">
+      scale="4.8 4.8 4.8">
     </model-viewer>
 
-    <div class="details" id="details">
+    <div class="details">
       Sculpted aluminium form designed for intimate listening.<br>
-      Gesture-enabled exhibition kiosk exploring form, presence, and interaction.
+      A gesture-based exhibition kiosk exploring presence, material, and sound.
     </div>
 
     <div class="state" id="state">ATTRACT</div>
@@ -136,7 +133,6 @@
   let current = 0;
 
   const viewer = document.getElementById("viewer");
-  const details = document.getElementById("details");
   const stateLabel = document.getElementById("state");
 
   window.addEventListener("keydown", () => {
@@ -146,19 +142,16 @@
     if (states[current] === "ATTRACT") {
       viewer.autoRotate = true;
       viewer.cameraControls = false;
-      details.style.opacity = 0.4;
     }
 
     if (states[current] === "EXPLORE") {
       viewer.autoRotate = false;
       viewer.cameraControls = true;
-      details.style.opacity = 0.6;
     }
 
     if (states[current] === "FOCUS") {
       viewer.autoRotate = false;
       viewer.cameraControls = true;
-      details.style.opacity = 1;
     }
   });
 </script>
