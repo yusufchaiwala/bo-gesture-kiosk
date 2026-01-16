@@ -83,13 +83,23 @@
       margin-bottom: 16px;
     }
 
-    .cta {
-      border: 1px solid #eaeaea;
-      padding: 12px 28px;
-      font-size: 14px;
-      letter-spacing: 1px;
-      display: inline-block;
-    }
+  .cta {
+  border: 1px solid #eaeaea;
+  padding: 12px 28px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  display: inline-block;
+  color: #eaeaea;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.cta:hover {
+  background: #eaeaea;
+  color: #000;
+}
+
+
 
     /* ---------- COMING SOON ---------- */
     .coming-soon {
@@ -155,7 +165,14 @@
 
     <div class="purchase" id="purchase">
       <div class="price">$4,650</div>
-      <div class="cta">EXPERIENCE IN STORE</div>
+      <a
+  class="cta"
+  href="https://www.bang-olufsen.com/en/int/speakers/beosound-a9"
+  target="_blank"
+  rel="noopener noreferrer">
+  EXPERIENCE IN STORE
+</a>
+
     </div>
 
     <div class="state" id="state">ATTRACT</div>
