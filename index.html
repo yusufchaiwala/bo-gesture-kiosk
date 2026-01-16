@@ -141,12 +141,13 @@
 
   <!-- SIDEBAR -->
   <nav>
-    <img src="assets/bo-logo.png" class="logo" alt="Bang & Olufsen" />
-    <div class="nav-item active">BEOSOUND A9</div>
-    <div class="nav-item">COMING SOON</div>
-    <div class="nav-item">COMING SOON</div>
-    <div class="nav-item">COMING SOON</div>
-  </nav>
+  <img src="assets/bo-logo.png" class="logo" alt="Bang & Olufsen" />
+
+  <div class="nav-item active" onclick="showProduct()">BEOSOUND A9</div>
+  <div class="nav-item" onclick="showComingSoon()">COMING SOON</div>
+  <div class="nav-item" onclick="showComingSoon()">COMING SOON</div>
+  <div class="nav-item" onclick="showComingSoon()">COMING SOON</div>
+</nav>
 
   <!-- MAIN -->
   <main>
@@ -165,6 +166,9 @@
       environment-image="neutral"
       shadow-intensity="1">
     </model-viewer>
+<div class="coming-soon">
+  COMING SOON
+</div>
 
     <div class="description">
       Sound and shape unite in this iconic, customisable speaker.<br>
@@ -188,6 +192,41 @@
     </div>
 
   </main>
+<script>
+  const viewer = document.querySelector("model-viewer");
+  const comingSoon = document.querySelector(".coming-soon");
+  const description = document.querySelector(".description");
+  const purchase = document.querySelector(".purchase");
+  const navItems = document.querySelectorAll(".nav-item");
+
+  function clearActive() {
+    navItems.forEach(item => item.classList.remove("active"));
+  }
+
+  function showProduct() {
+    clearActive();
+    navItems[0].classList.add("active");
+
+    viewer.style.display = "block";
+    description.style.display = "block";
+    purchase.style.display = "block";
+    comingSoon.style.display = "none";
+  }
+
+  function showComingSoon() {
+    clearActive();
+
+    // mark all "coming soon" items as active when clicked
+    for (let i = 1; i < navItems.length; i++) {
+      navItems[i].classList.add("active");
+    }
+
+    viewer.style.display = "none";
+    description.style.display = "none";
+    purchase.style.display = "none";
+    comingSoon.style.display = "flex";
+  }
+</script>
 
 </body>
 </html>
