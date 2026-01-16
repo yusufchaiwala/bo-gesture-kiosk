@@ -225,8 +225,38 @@
     description.style.display = "none";
     purchase.style.display = "none";
     comingSoon.style.display = "flex";
+  }<script>
+  const ambience = document.getElementById("ambience");
+
+  // Start very soft
+  ambience.volume = 0;
+
+  let activated = false;
+
+  function activateSound() {
+    if (activated) return;
+    activated = true;
+
+    ambience.muted = false;
+
+    // Gentle fade-in
+    let vol = 0;
+    const fade = setInterval(() => {
+      vol += 0.02;
+      ambience.volume = Math.min(vol, 0.25); // premium level
+      if (vol >= 0.25) clearInterval(fade);
+    }, 100);
   }
+
+  // First real interaction unmutes sound
+  window.addEventListener("pointerdown", activateSound, { once: true });
+  window.addEventListener("keydown", activateSound, { once: true });
 </script>
+
+</script>
+<audio id="ambience" autoplay muted loop>
+  <source src="assets/audio/ambience.mp3" type="audio/mpeg">
+</audio>
 
 </body>
 </html>
