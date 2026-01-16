@@ -264,7 +264,7 @@
 
     if (count === 1) {
       const p = results.multiHandLandmarks[0][9];
-      yaw = (p.x - 0.5) * 180;
+      yaw = (p.x - 0.5) * 360;
       pitch = 60 + (0.5 - p.y) * 30;
     }
 
@@ -274,7 +274,11 @@
       zoom = Math.min(6, Math.max(3, 5 - Math.abs(a.x - b.x) * 5));
     }
 
-    viewer.cameraOrbit = `${yaw}deg ${pitch}deg ${zoom}m`;
+   viewer.setAttribute(
+  "camera-orbit",
+  `${yaw}deg ${pitch}deg ${zoom}m`
+);
+
   });
 
   let cam = null;
