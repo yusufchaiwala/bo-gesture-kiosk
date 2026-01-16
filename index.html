@@ -2,32 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>B&O Interactive Exhibition Kiosk</title>
+  <title>B&O Exhibition Kiosk – Beosound A9</title>
 
-  <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       height: 100vh;
       display: grid;
-      grid-template-columns: 300px 1fr;
+      grid-template-columns: 320px 1fr;
       font-family: Helvetica, Arial, sans-serif;
       background: #111;
       overflow: hidden;
     }
 
-    /* ---------- SIDEBAR (B&O STYLE) ---------- */
+    /* ---------- SIDEBAR ---------- */
     nav {
-      background: #f4f4f2; /* B&O neutral */
-      padding: 40px 32px;
+      background: #f4f4f2;
+      padding: 48px 36px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid #ddd;
@@ -35,18 +32,21 @@
 
     .logo {
       width: 160px;
-      margin-bottom: 56px;
+      margin-bottom: 64px;
     }
 
-    .product {
+    .product-name {
       font-size: 14px;
-      letter-spacing: 1px;
-      color: #777;
-      margin-bottom: 24px;
+      letter-spacing: 2px;
+      color: #000;
+      margin-bottom: 12px;
     }
 
-    .product.active {
+    .tagline {
+      font-size: 20px;
+      line-height: 1.3;
       color: #000;
+      margin-bottom: 32px;
     }
 
     /* ---------- MAIN STAGE ---------- */
@@ -63,23 +63,43 @@
       background: #0c0c0c;
     }
 
-    /* ---------- DETAILS ---------- */
-    .details {
+    /* ---------- PRODUCT DETAILS ---------- */
+    .description {
       position: absolute;
-      bottom: 40px;
-      left: 40px;
-      max-width: 380px;
+      bottom: 48px;
+      left: 48px;
+      max-width: 420px;
       font-size: 14px;
       line-height: 1.7;
-      color: #bcbcbc;
-      pointer-events: none;
+      color: #cfcfcf;
+    }
+
+    .purchase {
+      position: absolute;
+      bottom: 48px;
+      right: 48px;
+      text-align: right;
+      color: #eaeaea;
+    }
+
+    .price {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .cta {
+      border: 1px solid #eaeaea;
+      padding: 12px 28px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      display: inline-block;
     }
 
     /* ---------- STATE ---------- */
     .state {
       position: absolute;
-      top: 40px;
-      right: 40px;
+      top: 48px;
+      right: 48px;
       font-size: 12px;
       letter-spacing: 3px;
       color: #888;
@@ -93,9 +113,8 @@
   <nav>
     <img src="assets/bo-logo.png" alt="Bang & Olufsen" class="logo">
 
-    <div class="product active">BEOSOUND SPEAKER</div>
-    <div class="product">COMING SOON</div>
-    <div class="product">COMING SOON</div>
+    <div class="product-name">BEOSOUND A9</div>
+    <div class="tagline">Powerful, minimalist speaker</div>
   </nav>
 
   <!-- MAIN -->
@@ -106,7 +125,7 @@
       src="assets/models/speaker.glb"
 
       auto-rotate
-      rotation-per-second="7deg"
+      rotation-per-second="6deg"
 
       camera-controls
       disable-zoom
@@ -119,9 +138,14 @@
       scale="4.8 4.8 4.8">
     </model-viewer>
 
-    <div class="details">
-      Sculpted aluminium form designed for intimate listening.<br>
-      A gesture-based exhibition kiosk exploring presence, material, and sound.
+    <div class="description">
+      Sound and shape unite in this iconic, customisable speaker.<br>
+      Seven drivers bring the power. A century of craft brings the form.
+    </div>
+
+    <div class="purchase">
+      <div class="price">$4,650</div>
+      <div class="cta">EXPERIENCE IN STORE</div>
     </div>
 
     <div class="state" id="state">ATTRACT</div>
