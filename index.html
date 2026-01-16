@@ -51,12 +51,9 @@
     main {
       position: relative;
       background: #0c0c0c;
-      overflow: hidden;
     }
 
     model-viewer {
-      position: absolute;
-      inset: 0;
       width: 100%;
       height: 100%;
       background: #0c0c0c;
@@ -72,6 +69,7 @@
       line-height: 1.7;
       color: #cfcfcf;
       z-index: 10;
+      pointer-events: none;
     }
 
     .purchase {
@@ -129,7 +127,7 @@
       z-index: 10;
     }
 
-    /* ---------- INSTRUCTION (KEEP VISIBLE) ---------- */
+    /* ---------- INSTRUCTION ---------- */
     .hint {
       position: absolute;
       bottom: 24px;
@@ -138,6 +136,7 @@
       letter-spacing: 1.5px;
       color: rgba(255,255,255,0.35);
       z-index: 15;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -155,15 +154,14 @@
   </nav>
 
   <!-- MAIN -->
-  <main id="mainStage">
+  <main>
 
     <model-viewer
       id="viewer"
       src="assets/models/speaker.glb"
-      auto-rotate
-      rotation-per-second="6deg"
       camera-controls
-      disable-zoom
+      auto-rotate
+      rotation-per-second="4deg"
       interaction-prompt="none"
       exposure="1.25"
       environment-image="neutral"
@@ -192,21 +190,19 @@
     <div class="state" id="state">ATTRACT</div>
 
     <div class="hint">
-      Move cursor to explore · Scroll to zoom · Press space to focus
+      Drag to rotate · Scroll to zoom · Press space to focus
     </div>
 
   </main>
 
 <script>
-  /* ---------- REFERENCES ---------- */
   const viewer = document.getElementById("viewer");
-  const mainStage = document.getElementById("mainStage");
   const comingSoon = document.getElementById("comingSoon");
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
   const navItems = document.querySelectorAll(".nav-item");
+  const stateLabel = document.getElementById("state");
 
-  /* ---------- SIDEBAR ---------- */
   function clearActive() {
     navItems.forEach(i => i.classList.remove("active"));
   }
@@ -229,34 +225,17 @@
     comingSoon.style.display = "flex";
   }
 
-  /* ---------- STATE ---------- */
   const states = ["ATTRACT", "EXPLORE", "FOCUS"];
   let stateIndex = 0;
-  const stateLabel = document.getElementById("state");
 
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
       stateIndex = (stateIndex + 1) % states.length;
       stateLabel.innerText = states[stateIndex];
-
       viewer.autoRotate = states[stateIndex] === "ATTRACT";
-      viewer.cameraControls = states[stateIndex] !== "ATTRACT";
     }
   });
+</script>
 
-  /* ---------- CORRECT 3D ROTATION (DELTA-BASED) ---------- */
-  let yaw = 0;
-  let pitch = 75;
-  let zoom = 4.8;
-
-  let lastX = null;
-  let lastY = null;
-
-  mainStage.addEventListener("pointermove", (e) => {
-    if (lastX === null || lastY === null) {
-      lastX = e.clientX;
-      lastY = e.clientY;
-      return;
-    }
-
-    const dx = e.clientX - last
+</body>
+</html>
