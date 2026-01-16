@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>B&O Kiosk</title>
+  <title>B&O Interactive Exhibition Kiosk</title>
 
   <!-- Model Viewer -->
   <script type="module"
@@ -129,7 +129,7 @@
       z-index: 10;
     }
 
-    /* ---------- SUBTLE HINT ---------- */
+    /* ---------- INSTRUCTION (KEEP VISIBLE) ---------- */
     .hint {
       position: absolute;
       bottom: 24px;
@@ -138,11 +138,6 @@
       letter-spacing: 1.5px;
       color: rgba(255,255,255,0.35);
       z-index: 15;
-      transition: opacity 0.6s ease;
-    }
-
-    .hint.hidden {
-      opacity: 0;
     }
   </style>
 </head>
@@ -196,7 +191,7 @@
 
     <div class="state" id="state">ATTRACT</div>
 
-    <div class="hint" id="hint">
+    <div class="hint">
       Move cursor to explore · Scroll to zoom · Press space to focus
     </div>
 
@@ -210,7 +205,6 @@
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
   const navItems = document.querySelectorAll(".nav-item");
-  const hint = document.getElementById("hint");
 
   /* ---------- SIDEBAR ---------- */
   function clearActive() {
@@ -247,48 +241,22 @@
 
       viewer.autoRotate = states[stateIndex] === "ATTRACT";
       viewer.cameraControls = states[stateIndex] !== "ATTRACT";
-
-      hint.classList.add("hidden");
     }
   });
 
-  /* ---------- MOUSE = GESTURE PROXY (ZONED) ---------- */
+  /* ---------- CORRECT 3D ROTATION (DELTA-BASED) ---------- */
   let yaw = 0;
   let pitch = 75;
   let zoom = 4.8;
-  let interacted = false;
+
+  let lastX = null;
+  let lastY = null;
 
   mainStage.addEventListener("pointermove", (e) => {
-    const rect = mainStage.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-
-    if (x < 0 || x > 1 || y < 0 || y > 1) return;
-
-    yaw = (x - 0.5) * 180;
-    pitch = 60 + (0.5 - y) * 30;
-
-    viewer.setAttribute(
-      "camera-orbit",
-      `${yaw}deg ${pitch}deg ${zoom}m`
-    );
-
-    if (!interacted) {
-      interacted = true;
-      hint.classList.add("hidden");
+    if (lastX === null || lastY === null) {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      return;
     }
-  });
 
-  mainStage.addEventListener("wheel", (e) => {
-    zoom += e.deltaY * 0.001;
-    zoom = Math.min(6, Math.max(3, zoom));
-
-    viewer.setAttribute(
-      "camera-orbit",
-      `${yaw}deg ${pitch}deg ${zoom}m`
-    );
-  });
-</script>
-
-</body>
-</html>
+    const dx = e.clientX - last
