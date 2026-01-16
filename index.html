@@ -25,31 +25,27 @@
     nav {
       background: #f4f4f2;
       padding: 48px 36px;
-      display: flex;
-      flex-direction: column;
       border-right: 1px solid #ddd;
     }
 
     .logo {
-      width: 100px;
-      margin-bottom: 64px;
+      width: 110px;
+      margin-bottom: 48px;
     }
 
-    .product-name {
+    .nav-item {
       font-size: 14px;
       letter-spacing: 2px;
-      color: #000;
-      margin-bottom: 12px;
+      margin-bottom: 24px;
+      color: #777;
+      cursor: pointer;
     }
 
-    .tagline {
-      font-size: 20px;
-      line-height: 1.3;
+    .nav-item.active {
       color: #000;
-      margin-bottom: 32px;
     }
 
-    /* ---------- MAIN STAGE ---------- */
+    /* ---------- MAIN ---------- */
     main {
       position: relative;
       background: #0c0c0c;
@@ -63,7 +59,7 @@
       background: #0c0c0c;
     }
 
-    /* ---------- PRODUCT DETAILS ---------- */
+    /* ---------- DETAILS ---------- */
     .description {
       position: absolute;
       bottom: 48px;
@@ -95,6 +91,18 @@
       display: inline-block;
     }
 
+    /* ---------- COMING SOON ---------- */
+    .coming-soon {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      letter-spacing: 6px;
+      color: #555;
+    }
+
     /* ---------- STATE ---------- */
     .state {
       position: absolute;
@@ -113,8 +121,10 @@
   <nav>
     <img src="assets/bo-logo.png" alt="Bang & Olufsen" class="logo">
 
-    <div class="product-name">BEOSOUND A9</div>
-    <div class="tagline">Powerful, minimalist speaker</div>
+    <div class="nav-item active" onclick="showProduct()">BEOSOUND A9</div>
+    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
+    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
+    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
   </nav>
 
   <!-- MAIN -->
@@ -123,27 +133,27 @@
     <model-viewer
       id="viewer"
       src="assets/models/speaker.glb"
-
       auto-rotate
       rotation-per-second="6deg"
-
       camera-controls
       disable-zoom
       interaction-prompt="none"
-
       exposure="1.25"
       environment-image="neutral"
       shadow-intensity="1"
-
       scale="4.8 4.8 4.8">
     </model-viewer>
 
-    <div class="description">
+    <div class="coming-soon" id="comingSoon">
+      COMING SOON
+    </div>
+
+    <div class="description" id="description">
       Sound and shape unite in this iconic, customisable speaker.<br>
       Seven drivers bring the power. A century of craft brings the form.
     </div>
 
-    <div class="purchase">
+    <div class="purchase" id="purchase">
       <div class="price">$4,650</div>
       <div class="cta">EXPERIENCE IN STORE</div>
     </div>
@@ -153,11 +163,40 @@
   </main>
 
 <script>
+  const viewer = document.getElementById("viewer");
+  const comingSoon = document.getElementById("comingSoon");
+  const description = document.getElementById("description");
+  const purchase = document.getElementById("purchase");
+  const stateLabel = document.getElementById("state");
+  const navItems = document.querySelectorAll(".nav-item");
+
+  function clearActive() {
+    navItems.forEach(item => item.classList.remove("active"));
+  }
+
+  function showProduct() {
+    clearActive();
+    navItems[0].classList.add("active");
+
+    viewer.style.display = "block";
+    comingSoon.style.display = "none";
+    description.style.display = "block";
+    purchase.style.display = "block";
+  }
+
+  function showComingSoon(el) {
+    clearActive();
+    el.classList.add("active");
+
+    viewer.style.display = "none";
+    description.style.display = "none";
+    purchase.style.display = "none";
+    comingSoon.style.display = "flex";
+  }
+
+  // STATE LOGIC (gesture proxy)
   const states = ["ATTRACT", "EXPLORE", "FOCUS"];
   let current = 0;
-
-  const viewer = document.getElementById("viewer");
-  const stateLabel = document.getElementById("state");
 
   window.addEventListener("keydown", () => {
     current = (current + 1) % states.length;
@@ -166,14 +205,7 @@
     if (states[current] === "ATTRACT") {
       viewer.autoRotate = true;
       viewer.cameraControls = false;
-    }
-
-    if (states[current] === "EXPLORE") {
-      viewer.autoRotate = false;
-      viewer.cameraControls = true;
-    }
-
-    if (states[current] === "FOCUS") {
+    } else {
       viewer.autoRotate = false;
       viewer.cameraControls = true;
     }
