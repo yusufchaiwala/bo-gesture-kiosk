@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>B&O Gesture-Based Exhibition Kiosk</title>
+  <title>B&O Kiosk</title>
 
   <!-- Model Viewer -->
   <script type="module"
@@ -128,10 +128,10 @@
       z-index: 10;
     }
 
-    /* ---------- GESTURE HINT (SUBTLE) ---------- */
-    .gesture-hint {
+    /* ---------- SUBTLE INTERACTION HINT ---------- */
+    .hint {
       position: absolute;
-      bottom: 48px;
+      bottom: 24px;
       left: 48px;
       font-size: 12px;
       letter-spacing: 1.5px;
@@ -140,7 +140,7 @@
       transition: opacity 0.6s ease;
     }
 
-    .gesture-hint.hidden {
+    .hint.hidden {
       opacity: 0;
     }
   </style>
@@ -195,21 +195,20 @@
 
     <div class="state" id="state">ATTRACT</div>
 
-    <!-- Subtle gesture hint -->
-    <div class="gesture-hint" id="gestureHint">
-      Tilt device to explore form
+    <div class="hint" id="hint">
+      Move cursor to explore · Scroll to zoom · Press space to focus
     </div>
 
   </main>
 
 <script>
-  /* ---------- SIDEBAR LOGIC ---------- */
+  /* ---------- SIDEBAR ---------- */
   const viewer = document.getElementById("viewer");
   const comingSoon = document.getElementById("comingSoon");
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
   const navItems = document.querySelectorAll(".nav-item");
-  const gestureHint = document.getElementById("gestureHint");
+  const hint = document.getElementById("hint");
 
   function clearActive() {
     navItems.forEach(i => i.classList.remove("active"));
@@ -233,41 +232,55 @@
     comingSoon.style.display = "flex";
   }
 
-  /* ---------- STATE LOGIC ---------- */
+  /* ---------- STATE ---------- */
   const states = ["ATTRACT", "EXPLORE", "FOCUS"];
   let stateIndex = 0;
   const stateLabel = document.getElementById("state");
 
-  window.addEventListener("keydown", () => {
-    stateIndex = (stateIndex + 1) % states.length;
-    stateLabel.innerText = states[stateIndex];
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      stateIndex = (stateIndex + 1) % states.length;
+      stateLabel.innerText = states[stateIndex];
 
-    viewer.autoRotate = states[stateIndex] === "ATTRACT";
-    viewer.cameraControls = states[stateIndex] !== "ATTRACT";
+      viewer.autoRotate = states[stateIndex] === "ATTRACT";
+      viewer.cameraControls = states[stateIndex] !== "ATTRACT";
+
+      hint.classList.add("hidden");
+    }
   });
 
-  /* ---------- GESTURE CONTROL (DEVICE ORIENTATION) ---------- */
+  /* ---------- MOUSE = GESTURE PROXY ---------- */
   let yaw = 0;
   let pitch = 75;
   let zoom = 4.8;
-  let gestureUsed = false;
+  let interacted = false;
 
-  window.addEventListener("deviceorientation", (e) => {
-    if (e.beta === null || e.gamma === null) return;
+  window.addEventListener("pointermove", (e) => {
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
 
-    yaw = e.gamma * 2;
-    pitch = 60 + (e.beta - 45) * 0.5;
+    yaw = (x - 0.5) * 180;
+    pitch = 60 + (0.5 - y) * 30;
 
     viewer.setAttribute(
       "camera-orbit",
       `${yaw}deg ${pitch}deg ${zoom}m`
     );
 
-    // Hide hint after first real interaction
-    if (!gestureUsed) {
-      gestureUsed = true;
-      gestureHint.classList.add("hidden");
+    if (!interacted) {
+      interacted = true;
+      hint.classList.add("hidden");
     }
+  });
+
+  window.addEventListener("wheel", (e) => {
+    zoom += e.deltaY * 0.001;
+    zoom = Math.min(6, Math.max(3, zoom));
+
+    viewer.setAttribute(
+      "camera-orbit",
+      `${yaw}deg ${pitch}deg ${zoom}m`
+    );
   });
 </script>
 
