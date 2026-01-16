@@ -82,14 +82,21 @@
   <!-- MAIN -->
   <main>
     <model-viewer
-      id="viewer"
-      src="assets/models/speaker.glb"
-      camera-controls
-      auto-rotate
-      rotation-per-second="15deg"
-      exposure="1.2"
-      shadow-intensity="1">
-    </model-viewer>
+  id="viewer"
+  src="assets/models/speaker.glb"
+  camera-controls
+  auto-rotate
+  rotation-per-second="15deg"
+  exposure="1.2"
+  shadow-intensity="1"
+
+  camera-orbit="0deg 75deg 2.2m"
+  min-camera-orbit="auto auto 1.8m"
+  max-camera-orbit="auto auto 3.5m"
+
+  field-of-view="25deg">
+</model-viewer>
+
 
     <div class="details" id="details">
       Sculpted aluminium form designed for intimate listening.<br>
