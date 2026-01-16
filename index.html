@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>B&O Interactive Exhibition Kiosk</title>
+  <title>B&O Exhibition Kiosk</title>
 
-  <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
@@ -47,7 +46,7 @@
       color: #000;
     }
 
-    /* ---------- MAIN STAGE ---------- */
+    /* ---------- MAIN ---------- */
     main {
       position: relative;
       background: #0c0c0c;
@@ -59,7 +58,14 @@
       background: #0c0c0c;
     }
 
-    /* ---------- PRODUCT DETAILS ---------- */
+    /* ---------- OVERLAYS ---------- */
+    .description,
+    .state,
+    .hint,
+    .coming-soon {
+      pointer-events: none;
+    }
+
     .description {
       position: absolute;
       bottom: 48px;
@@ -68,16 +74,32 @@
       font-size: 14px;
       line-height: 1.7;
       color: #cfcfcf;
-      z-index: 10;
-      pointer-events: none;
     }
 
+    .state {
+      position: absolute;
+      top: 48px;
+      right: 48px;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: #888;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 24px;
+      left: 48px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ---------- CTA ---------- */
     .purchase {
       position: absolute;
       bottom: 48px;
       right: 48px;
-      text-align: right;
-      z-index: 20;
+      z-index: 10;
     }
 
     .price {
@@ -91,7 +113,6 @@
       padding: 12px 28px;
       font-size: 14px;
       letter-spacing: 1px;
-      display: inline-block;
       color: #eaeaea;
       text-decoration: none;
       transition: background 0.25s ease, color 0.25s ease;
@@ -100,140 +121,84 @@
     .cta:hover {
       background: #eaeaea;
       color: #000;
-      cursor: pointer;
-    }
-
-    /* ---------- COMING SOON ---------- */
-    .coming-soon {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      letter-spacing: 6px;
-      color: #555;
-      z-index: 5;
-    }
-
-    /* ---------- STATE ---------- */
-    .state {
-      position: absolute;
-      top: 48px;
-      right: 48px;
-      font-size: 12px;
-      letter-spacing: 3px;
-      color: #888;
-      z-index: 10;
-    }
-
-    /* ---------- INSTRUCTION ---------- */
-    .hint {
-      position: absolute;
-      bottom: 24px;
-      left: 48px;
-      font-size: 12px;
-      letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.35);
-      z-index: 15;
-      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- SIDEBAR -->
   <nav>
     <img src="assets/bo-logo.png" class="logo" alt="Bang & Olufsen" />
-
-    <div class="nav-item active" onclick="showProduct(this)">BEOSOUND A9</div>
-    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
-    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
-    <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
+    <div class="nav-item active">BEOSOUND A9</div>
+    <div class="nav-item">COMING SOON</div>
+    <div class="nav-item">COMING SOON</div>
+    <div class="nav-item">COMING SOON</div>
   </nav>
 
-  <!-- MAIN -->
   <main>
 
+    <!-- TURN-TABLE MODEL -->
     <model-viewer
       id="viewer"
       src="assets/models/speaker.glb"
-      camera-controls
       auto-rotate
-      rotation-per-second="4deg"
+      rotation-per-second="2deg"
+      camera-orbit="0deg 75deg 4.8m"
+      min-camera-orbit="-Infinity 60deg 3m"
+      max-camera-orbit="Infinity  85deg 6m"
       interaction-prompt="none"
       exposure="1.25"
       environment-image="neutral"
-      shadow-intensity="1"
-      scale="4.8 4.8 4.8">
+      shadow-intensity="1">
     </model-viewer>
 
-    <div class="coming-soon" id="comingSoon">COMING SOON</div>
-
-    <div class="description" id="description">
-      Sound and shape unite in this iconic, customisable speaker.<br>
-      Seven drivers bring the power. A century of craft brings the form.
+    <div class="description">
+      Sound and shape unite in this iconic, customisable speaker.
     </div>
 
-    <div class="purchase" id="purchase">
+    <div class="purchase">
       <div class="price">$4,650</div>
       <a
         class="cta"
         href="https://www.bang-olufsen.com/en/int/speakers/beosound-a9"
-        target="_blank"
-        rel="noopener noreferrer">
+        target="_blank">
         EXPERIENCE IN STORE
       </a>
     </div>
 
-    <div class="state" id="state">ATTRACT</div>
+    <div class="state">ATTRACT</div>
 
     <div class="hint">
-      Drag to rotate · Scroll to zoom · Press space to focus
+      Drag to rotate · Scroll to zoom
     </div>
 
   </main>
 
 <script>
   const viewer = document.getElementById("viewer");
-  const comingSoon = document.getElementById("comingSoon");
-  const description = document.getElementById("description");
-  const purchase = document.getElementById("purchase");
-  const navItems = document.querySelectorAll(".nav-item");
-  const stateLabel = document.getElementById("state");
 
-  function clearActive() {
-    navItems.forEach(i => i.classList.remove("active"));
-  }
+  let rotationY = 0;
+  let lastX = null;
 
-  function showProduct(el) {
-    clearActive();
-    el.classList.add("active");
-    viewer.style.display = "block";
-    comingSoon.style.display = "none";
-    description.style.display = "block";
-    purchase.style.display = "block";
-  }
+  viewer.addEventListener("pointerdown", e => {
+    lastX = e.clientX;
+    viewer.autoRotate = false;
+  });
 
-  function showComingSoon(el) {
-    clearActive();
-    el.classList.add("active");
-    viewer.style.display = "none";
-    description.style.display = "none";
-    purchase.style.display = "none";
-    comingSoon.style.display = "flex";
-  }
+  viewer.addEventListener("pointermove", e => {
+    if (lastX === null) return;
+    const dx = e.clientX - lastX;
+    rotationY += dx * 0.25;
+    viewer.orientation = `0deg ${rotationY}deg 0deg`;
+    lastX = e.clientX;
+  });
 
-  const states = ["ATTRACT", "EXPLORE", "FOCUS"];
-  let stateIndex = 0;
+  viewer.addEventListener("pointerup", () => {
+    lastX = null;
+  });
 
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      stateIndex = (stateIndex + 1) % states.length;
-      stateLabel.innerText = states[stateIndex];
-      viewer.autoRotate = states[stateIndex] === "ATTRACT";
-    }
+  viewer.addEventListener("pointerleave", () => {
+    lastX = null;
   });
 </script>
 
