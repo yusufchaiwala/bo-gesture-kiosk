@@ -2,16 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>B&O Kiosk</title>
+  <title>B&O Gesture-Based Exhibition Kiosk</title>
 
   <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
-
-  <!-- MediaPipe -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <style>
     * { box-sizing: border-box; }
@@ -65,7 +61,7 @@
       background: #0c0c0c;
     }
 
-    /* ---------- DETAILS ---------- */
+    /* ---------- PRODUCT DETAILS ---------- */
     .description {
       position: absolute;
       bottom: 48px;
@@ -131,6 +127,22 @@
       color: #888;
       z-index: 10;
     }
+
+    /* ---------- GESTURE HINT (SUBTLE) ---------- */
+    .gesture-hint {
+      position: absolute;
+      bottom: 48px;
+      left: 48px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.35);
+      z-index: 15;
+      transition: opacity 0.6s ease;
+    }
+
+    .gesture-hint.hidden {
+      opacity: 0;
+    }
   </style>
 </head>
 
@@ -182,23 +194,13 @@
     </div>
 
     <div class="state" id="state">ATTRACT</div>
-<div id="gestureHint"
-     style="
-       position:absolute;
-       top:50%;
-       left:50%;
-       transform:translate(-50%,-50%);
-       color:#888;
-       letter-spacing:2px;
-       font-size:14px;
-       z-index:30;">
-  PRESS “G” TO ENABLE GESTURE CONTROL
-</div>
+
+    <!-- Subtle gesture hint -->
+    <div class="gesture-hint" id="gestureHint">
+      Tilt device to explore form
+    </div>
 
   </main>
-
-  <!-- Hidden Camera -->
-  <video id="camera" style="display:none;"></video>
 
 <script>
   /* ---------- SIDEBAR LOGIC ---------- */
@@ -207,6 +209,7 @@
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
   const navItems = document.querySelectorAll(".nav-item");
+  const gestureHint = document.getElementById("gestureHint");
 
   function clearActive() {
     navItems.forEach(i => i.classList.remove("active"));
@@ -243,65 +246,29 @@
     viewer.cameraControls = states[stateIndex] !== "ATTRACT";
   });
 
-  /* ---------- GESTURE CONTROL ---------- */
-  const video = document.getElementById("camera");
-  let yaw = 0, pitch = 75, zoom = 4.8;
+  /* ---------- GESTURE CONTROL (DEVICE ORIENTATION) ---------- */
+  let yaw = 0;
+  let pitch = 75;
+  let zoom = 4.8;
+  let gestureUsed = false;
 
-  const hands = new Hands({
-    locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
-  });
+  window.addEventListener("deviceorientation", (e) => {
+    if (e.beta === null || e.gamma === null) return;
 
-  hands.setOptions({
-    maxNumHands: 2,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.7
-  });
+    yaw = e.gamma * 2;
+    pitch = 60 + (e.beta - 45) * 0.5;
 
-  hands.onResults(results => {
-    if (!results.multiHandLandmarks) return;
+    viewer.setAttribute(
+      "camera-orbit",
+      `${yaw}deg ${pitch}deg ${zoom}m`
+    );
 
-    const count = results.multiHandLandmarks.length;
-
-    if (count === 1) {
-      const p = results.multiHandLandmarks[0][9];
-      yaw = (p.x - 0.5) * 360;
-      pitch = 60 + (0.5 - p.y) * 30;
+    // Hide hint after first real interaction
+    if (!gestureUsed) {
+      gestureUsed = true;
+      gestureHint.classList.add("hidden");
     }
-
-    if (count === 2) {
-      const a = results.multiHandLandmarks[0][9];
-      const b = results.multiHandLandmarks[1][9];
-      zoom = Math.min(6, Math.max(3, 5 - Math.abs(a.x - b.x) * 5));
-    }
-
-   viewer.setAttribute(
-  "camera-orbit",
-  `${yaw}deg ${pitch}deg ${zoom}m`
-);
-
   });
-
-  let cam = null;
-let gestureEnabled = false;
-const hint = document.getElementById("gestureHint");
-
-window.addEventListener("keydown", (e) => {
-  if (e.key.toLowerCase() === "g" && !gestureEnabled) {
-    gestureEnabled = true;
-    hint.innerText = "GESTURE CONTROL ACTIVE";
-
-    cam = new Camera(video, {
-      onFrame: async () => {
-        await hands.send({ image: video });
-      },
-      width: 640,
-      height: 480
-    });
-
-    cam.start();
-  }
-});
-
 </script>
 
 </body>
