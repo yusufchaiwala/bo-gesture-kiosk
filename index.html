@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>B&o Kiosk</title>
+  <meta charset="UTF-8" />
+  <title>B&O Gesture-Based Exhibition Kiosk</title>
 
+  <!-- Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <style>
     * { box-sizing: border-box; }
@@ -31,6 +36,7 @@
     .logo {
       width: 110px;
       margin-bottom: 48px;
+      opacity: 0.9;
     }
 
     .nav-item {
@@ -45,7 +51,7 @@
       color: #000;
     }
 
-    /* ---------- MAIN ---------- */
+    /* ---------- MAIN STAGE ---------- */
     main {
       position: relative;
       background: #0c0c0c;
@@ -68,40 +74,39 @@
       font-size: 14px;
       line-height: 1.7;
       color: #cfcfcf;
+      z-index: 10;
     }
 
     .purchase {
-  position: absolute;
-  bottom: 48px;
-  right: 48px;
-  text-align: right;
-  color: #eaeaea;
-  z-index: 20; /* ABOVE model-viewer */
-}
-
+      position: absolute;
+      bottom: 48px;
+      right: 48px;
+      text-align: right;
+      z-index: 20;
+    }
 
     .price {
       font-size: 24px;
+      color: #eaeaea;
       margin-bottom: 16px;
     }
 
-  .cta {
-  border: 1px solid #eaeaea;
-  padding: 12px 28px;
-  font-size: 14px;
-  letter-spacing: 1px;
-  display: inline-block;
-  color: #eaeaea;
-  text-decoration: none;
-  transition: all 0.25s ease;
-}
+    .cta {
+      border: 1px solid #eaeaea;
+      padding: 12px 28px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      display: inline-block;
+      color: #eaeaea;
+      text-decoration: none;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
 
-.cta:hover {
-  background: #eaeaea;
-  color: #000;
-}
-
-
+    .cta:hover {
+      background: #eaeaea;
+      color: #000;
+      cursor: pointer;
+    }
 
     /* ---------- COMING SOON ---------- */
     .coming-soon {
@@ -113,6 +118,7 @@
       font-size: 48px;
       letter-spacing: 6px;
       color: #555;
+      z-index: 5;
     }
 
     /* ---------- STATE ---------- */
@@ -123,6 +129,7 @@
       font-size: 12px;
       letter-spacing: 3px;
       color: #888;
+      z-index: 10;
     }
   </style>
 </head>
@@ -131,9 +138,9 @@
 
   <!-- SIDEBAR -->
   <nav>
-    <img src="assets/bo-logo.png" alt="Bang & Olufsen" class="logo">
+    <img src="assets/bo-logo.png" class="logo" alt="Bang & Olufsen" />
 
-    <div class="nav-item active" onclick="showProduct()">BEOSOUND A9</div>
+    <div class="nav-item active" onclick="showProduct(this)">BEOSOUND A9</div>
     <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
     <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
     <div class="nav-item" onclick="showComingSoon(this)">COMING SOON</div>
@@ -156,9 +163,7 @@
       scale="4.8 4.8 4.8">
     </model-viewer>
 
-    <div class="coming-soon" id="comingSoon">
-      COMING SOON
-    </div>
+    <div class="coming-soon" id="comingSoon">COMING SOON</div>
 
     <div class="description" id="description">
       Sound and shape unite in this iconic, customisable speaker.<br>
@@ -168,35 +173,36 @@
     <div class="purchase" id="purchase">
       <div class="price">$4,650</div>
       <a
-  class="cta"
-  href="https://www.bang-olufsen.com/en/int/speakers/beosound-a9"
-  target="_blank"
-  rel="noopener noreferrer">
-  EXPERIENCE IN STORE
-</a>
-
+        class="cta"
+        href="https://www.bang-olufsen.com/en/int/speakers/beosound-a9"
+        target="_blank"
+        rel="noopener noreferrer">
+        EXPERIENCE IN STORE
+      </a>
     </div>
 
     <div class="state" id="state">ATTRACT</div>
 
   </main>
 
+  <!-- Hidden Camera -->
+  <video id="camera" style="display:none;"></video>
+
 <script>
+  /* ---------- SIDEBAR LOGIC ---------- */
   const viewer = document.getElementById("viewer");
   const comingSoon = document.getElementById("comingSoon");
   const description = document.getElementById("description");
   const purchase = document.getElementById("purchase");
-  const stateLabel = document.getElementById("state");
   const navItems = document.querySelectorAll(".nav-item");
 
   function clearActive() {
-    navItems.forEach(item => item.classList.remove("active"));
+    navItems.forEach(i => i.classList.remove("active"));
   }
 
-  function showProduct() {
+  function showProduct(el) {
     clearActive();
-    navItems[0].classList.add("active");
-
+    el.classList.add("active");
     viewer.style.display = "block";
     comingSoon.style.display = "none";
     description.style.display = "block";
@@ -206,29 +212,66 @@
   function showComingSoon(el) {
     clearActive();
     el.classList.add("active");
-
     viewer.style.display = "none";
     description.style.display = "none";
     purchase.style.display = "none";
     comingSoon.style.display = "flex";
   }
 
-  // STATE LOGIC (gesture proxy)
+  /* ---------- STATE LOGIC ---------- */
   const states = ["ATTRACT", "EXPLORE", "FOCUS"];
-  let current = 0;
+  let stateIndex = 0;
+  const stateLabel = document.getElementById("state");
 
   window.addEventListener("keydown", () => {
-    current = (current + 1) % states.length;
-    stateLabel.innerText = states[current];
+    stateIndex = (stateIndex + 1) % states.length;
+    stateLabel.innerText = states[stateIndex];
 
-    if (states[current] === "ATTRACT") {
-      viewer.autoRotate = true;
-      viewer.cameraControls = false;
-    } else {
-      viewer.autoRotate = false;
-      viewer.cameraControls = true;
-    }
+    viewer.autoRotate = states[stateIndex] === "ATTRACT";
+    viewer.cameraControls = states[stateIndex] !== "ATTRACT";
   });
+
+  /* ---------- GESTURE CONTROL ---------- */
+  const video = document.getElementById("camera");
+  let yaw = 0, pitch = 75, zoom = 4.8;
+
+  const hands = new Hands({
+    locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+  });
+
+  hands.setOptions({
+    maxNumHands: 2,
+    minDetectionConfidence: 0.7,
+    minTrackingConfidence: 0.7
+  });
+
+  hands.onResults(results => {
+    if (!results.multiHandLandmarks) return;
+
+    const count = results.multiHandLandmarks.length;
+
+    if (count === 1) {
+      const p = results.multiHandLandmarks[0][9];
+      yaw = (p.x - 0.5) * 180;
+      pitch = 60 + (0.5 - p.y) * 30;
+    }
+
+    if (count === 2) {
+      const a = results.multiHandLandmarks[0][9];
+      const b = results.multiHandLandmarks[1][9];
+      zoom = Math.min(6, Math.max(3, 5 - Math.abs(a.x - b.x) * 5));
+    }
+
+    viewer.cameraOrbit = `${yaw}deg ${pitch}deg ${zoom}m`;
+  });
+
+  const cam = new Camera(video, {
+    onFrame: async () => await hands.send({ image: video }),
+    width: 640,
+    height: 480
+  });
+
+  cam.start();
 </script>
 
 </body>
